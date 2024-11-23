@@ -33,17 +33,15 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillRect(x, y, 50, 50);
         });
 
-        // 创建piece并添加到pieces区域
+
         const piece = document.createElement('div');
         piece.className = 'piece';
         piece.draggable = true;
+        piece.addEventListener('dragstart', dragStart);
         piece.style.width = '150px';
         piece.style.height = '150px';
         piece.style.backgroundImage = `url(${canvas.toDataURL()})`;
         piece.style.backgroundSize = 'cover';
-        // 添加拖放事件
-        piece.addEventListener('dragstart', dragStart);
-        //piece.addEventListener('dragstart', handleDragStart);
 
         piecesContainer.appendChild(piece);
 
@@ -51,28 +49,29 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.style.backgroundColor = colors[0];
         });
 
-
     });
 
-    //*
+    // 处理拖动开始事件
     pieces.forEach(piece => {
         piece.addEventListener('dragstart', dragStart);
     });
 
+    // 处理拖动覆盖事件
     puzzleBoard.addEventListener('dragover', dragOver);
+    // 处理放置事件
     puzzleBoard.addEventListener('drop', drop);
 
-    // 处理拖动开始事件
+    // 处理拖动开始事件功能
     function dragStart(e) {
         e.dataTransfer.setData('text/plain', e.target.id);
     }
 
-    // 处理拖动覆盖事件
+    // 处理拖动覆盖事件功能
     function dragOver(e) {
         e.preventDefault();
     }
 
-    // 处理放置事件
+    // 处理放置事件功能
     function drop(e) {
         e.preventDefault();
         const id = e.dataTransfer.getData('text/plain');
@@ -84,6 +83,5 @@ document.addEventListener('DOMContentLoaded', () => {
             piece.style.backgroundSize = '50px 50px';
         }
     }
-    //*/
 
 });
