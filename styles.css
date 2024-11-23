@@ -14,9 +14,6 @@ body {
     align-items: center;
 }
 
-.color-picker {
-    margin-bottom: 20px;
-}
 
 .color-grid {
     display: grid;
@@ -39,6 +36,12 @@ button {
     cursor: pointer;
 }
 
+.color-picker,
+.pieces {
+    display: flex;
+}
+
+.color-picker,
 .board,
 .pieces {
     margin: 10px;
