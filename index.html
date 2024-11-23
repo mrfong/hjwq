@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线拼图游戏</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="color-picker">
+            <div class="color-grid" id="color-grid">
+                <!-- 九宫格色盘 -->
+                <div class="color-cell"></div><div class="color-cell"></div><div class="color-cell"></div>
+                <div class="color-cell"></div><div class="color-cell"></div><div class="color-cell"></div>
+                <div class="color-cell"></div><div class="color-cell"></div><div class="color-cell"></div>
+            </div>
+            <button id="submit-color">提交</button>
+        </div>
+        <div class="game-container">
+            <div class="board">
+                <div class="grid" id="puzzle-board">
+                    <!-- 4x5拼盘 -->
+                    <div></div><div></div><div></div><div></div><div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+            </div>
+            <div class="pieces" id="pieces">
+                <!-- 俄罗斯方块选择区 -->
+                <div class="piece" draggable="true" id="piece1"></div>
+                <div class="piece" draggable="true" id="piece2"></div>
+                <div class="piece" draggable="true" id="piece3"></div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
