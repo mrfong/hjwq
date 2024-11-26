@@ -1,66 +1,57 @@
-/* styles.css */
-
 body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     background-color: #f0f0f0;
+    margin: 0;
 }
 
-/*
 .game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-*/
 
-.color-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 30px);
-    grid-template-rows: repeat(3, 30px);
-    gap: 5px;
-    margin-bottom: 10px;
+canvas {
+    border: 1px solid #000;
+    background-color: #fff;
 }
 
-.color-cell {
-    width: 30px;
-    height: 30px;
-    background-color: #ccc;
-    border: 1px solid #999;
+.selection-area, .design-area {
+    margin-top: 50px;
+    text-align: center;
+}
+
+.color-buttons {
+    margin: 10px 0;
+}
+
+.color-button {
+    padding: 5px 10px;
+    margin: 0 5px;
     cursor: pointer;
+    border: none;
+    color: white;
+    font-weight: bold;
+}
+
+.controls {
+    margin-top: 10px;
 }
 
 button {
-    padding: 5px 10px;
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
-}
+} 
 
-.color-picker,
-.pieces {
+.flex-container {
     display: flex;
 }
-
-.color-picker,
-.board,
-.pieces {
-    margin: 10px;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(5, 50px);
-    grid-template-rows: repeat(4, 50px);
-    gap: 5px;
-}
-
-.grid div,
-.piece {
-    width: 50px;
-    height: 50px;
-    background-color: #ccc;
-    border: 1px solid #999;
-}
-
-.piece {
-    margin-bottom: 5px;
-    cursor: grab;
-    /*background-color: #8bc34a;*/
+.flex-direction {
+    flex-direction: column;
+  }
+.flex-wrap {
+    flex-wrap: wrap;
 }

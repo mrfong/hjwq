@@ -1,109 +1,228 @@
-// script.js
-document.addEventListener('DOMContentLoaded', () => {
-    const puzzleBoard = document.getElementById('puzzle-board');
-    const colorCells = document.querySelectorAll('.color-cell');
-    const submitButton = document.getElementById('submit-color');
-    const piecesContainer = document.getElementById('pieces');
+const canvas = document.getElementById('tetris');
+const context = canvas.getContext('2d');
+context.scale(20, 20); // 將畫布縮放以適應遊戲區域
 
-    if (!puzzleBoard || !submitButton || !piecesContainer) {
-        console.error('必須的 DOM 元素未找到');
-        return;
+const selectionCanvas = document.getElementById('selection');
+const selectionContext = selectionCanvas.getContext('2d');
+selectionContext.scale(20, 20); // 將選擇區畫布縮放
+
+const designCanvas = document.getElementById('design');
+const designContext = designCanvas.getContext('2d');
+designContext.scale(20, 20); // 將設計區畫布縮放
+
+let arena = createMatrix(12, 20); // 創建遊戲場地矩陣
+let players = []; // 存儲多個玩家方塊
+let currentPlayer = null; // 當前被選中的方塊
+
+let selectionPiece = createPiece('T'); // 初始選擇的方塊
+let designPiece = createMatrix(4, 4); // 設計區的方塊
+let currentColor = 1; // 默認顏色為紅色
+
+// 創建一個指定寬高的矩陣，並用0填充
+function createMatrix(w, h) {
+    const matrix = [];
+    while (h--) {
+        matrix.push(new Array(w).fill(0));
     }
+    return matrix;
+}
 
-    const colors = ['rgb(204, 204, 204)', 'rgb(244, 67, 54)', 'rgb(76, 175, 80)', 'rgb(33, 150, 243)'];
-
-    colorCells.forEach(cell => {
-        cell.style.backgroundColor = colors[0];
-        cell.addEventListener('click', () => {
-            let currentColor = getComputedStyle(cell).backgroundColor;
-            let nextColorIndex = (colors.indexOf(currentColor) + 1) % colors.length;
-            cell.style.backgroundColor = colors[nextColorIndex];
-        });
-    });
-
-    // 清空pieces区域
-    piecesContainer.innerHTML = '';
-
-    submitButton.addEventListener('click', () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 150;
-        canvas.height = 150;
-        const ctx = canvas.getContext('2d');
-
-        colorCells.forEach((cell, index) => {
-            const x = (index % 3) * 50;
-            const y = Math.floor(index / 3) * 50;
-            ctx.fillStyle = cell.style.backgroundColor === colors[0] ? 'rgba(0, 0, 0, 0)' : cell.style.backgroundColor;
-            ctx.fillRect(x, y, 50, 50);
-        });
-
-        const piece = document.createElement('div');
-        piece.className = 'piece';
-        piece.draggable = true;
-        piece.id = `piece-${Date.now()}`;
-        piece.addEventListener('dragstart', dragStart);
-        piece.style.width = '150px';
-        piece.style.height = '150px';
-        piece.style.backgroundImage = `url(${canvas.toDataURL()})`;
-        piece.style.backgroundSize = 'cover';
-
-        piecesContainer.appendChild(piece);
-
-        colorCells.forEach(cell => {
-            cell.style.backgroundColor = colors[0];
-        });
-    });
-
-    // 处理拖动覆盖事件
-    puzzleBoard.addEventListener('dragover', dragOver);
-    // 处理放置事件
-    puzzleBoard.addEventListener('drop', drop);
-
-    // 处理拖动开始事件功能
-    function dragStart(e) {
-        const id = e.target.id;
-        if (id) {
-            e.dataTransfer.setData('text/plain', id);
-        } else {
-            console.error('Element does not have an ID');
-        }
+// 根據類型創建不同形狀的方塊
+function createPiece(type) {
+    switch (type) {
+        case 'T':
+            return [
+                [0, 0, 0],
+                [5, 5, 5],
+                [0, 5, 0],
+            ];
+        case 'O':
+            return [
+                [7, 7],
+                [7, 7],
+            ];
+        case 'L':
+            return [
+                [0, 6, 0],
+                [0, 6, 0],
+                [0, 6, 6],
+            ];
+        case 'J':
+            return [
+                [0, 3, 0],
+                [0, 3, 0],
+                [3, 3, 0],
+            ];
+        case 'I':
+            return [
+                [0, 4, 0, 0],
+                [0, 4, 0, 0],
+                [0, 4, 0, 0],
+                [0, 4, 0, 0],
+            ];
+        case 'S':
+            return [
+                [0, 2, 2],
+                [2, 2, 0],
+                [0, 0, 0],
+            ];
+        case 'Z':
+            return [
+                [1, 1, 0],
+                [0, 1, 1],
+                [0, 0, 0],
+            ];
     }
+}
 
-    // 处理拖动覆盖事件功能
-    function dragOver(e) {
-        e.preventDefault();
-    }
-
-    // 处理放置事件功能
-    function drop(e) {
-        e.preventDefault();
-        const id = e.dataTransfer.getData('text/plain');
-        if (!id) {
-            console.error('No ID found in dataTransfer');
-            return;
-        }
-
-        const draggableElement = document.getElementById(id);
-
-        if (draggableElement) {
-            // 计算放置位置
-            const boardRect = puzzleBoard.getBoundingClientRect();
-            const pieceSize = 150; // 方块的尺寸
-            const offsetX = e.clientX - boardRect.left;
-            const offsetY = e.clientY - boardRect.top;
-
-            // 检查放置位置是否在拼盘的4x5范围内
-            if (offsetX >= 0 && offsetX <= boardRect.width - pieceSize && offsetY >= 0 && offsetY <= boardRect.height - pieceSize) {
-                draggableElement.style.position = 'absolute';
-                draggableElement.style.left = `${offsetX}px`;
-                draggableElement.style.top = `${offsetY}px`;
-                draggableElement.draggable = false; // 禁止再次拖动
-                puzzleBoard.appendChild(draggableElement);
-            } else {
-                console.error('放置位置超出拼盘范围');
+// 繪製矩陣到畫布上
+function drawMatrix(matrix, offset, ctx) {
+    matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                ctx.fillStyle = getColor(value); // 設置方塊顏色
+                ctx.fillRect(x + offset.x, y + offset.y, 1, 1); // 繪製方塊
             }
-        } else {
-            console.error(`Element with ID ${id} not found.`);
+        });
+    });
+}
+
+// 根據值返回對應的顏色
+function getColor(value) {
+    switch (value) {
+        case 1: return 'red';
+        case 2: return 'green';
+        case 3: return 'blue';
+        default: return 'black';
+    }
+}
+
+// 繪製遊戲畫面
+function draw() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawGrid(context, arena[0].length, arena.length); // 繪製格線
+    drawMatrix(arena, {x: 0, y: 0}, context);
+    players.forEach(player => {
+        drawMatrix(player.matrix, player.pos, context);
+    });
+    selectionContext.clearRect(0, 0, selectionCanvas.width, selectionCanvas.height);
+    drawMatrix(selectionPiece, {x: 0, y: 0}, selectionContext);
+    designContext.clearRect(0, 0, designCanvas.width, designCanvas.height);
+    drawMatrix(designPiece, {x: 0, y: 0}, designContext);
+}
+
+// 繪製遊戲區域的格線
+function drawGrid(ctx, width, height) {
+    ctx.strokeStyle = 'lightgray';
+    for (let x = 0; x < width; ++x) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+    }
+    for (let y = 0; y < height; ++y) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+    }
+}
+
+// 合併玩家方塊到遊戲場地
+function merge(arena, player) {
+    player.matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value !== 0) {
+                arena[y + player.pos.y][x + player.pos.x] = value;
+            }
+        });
+    });
+}
+
+// 檢查方塊是否碰撞
+function collide(arena, player) {
+    const [m, o] = [player.matrix, player.pos];
+    for (let y = 0; y < m.length; ++y) {
+        for (let x = 0; x < m[y].length; ++x) {
+            if (m[y][x] !== 0 &&
+               (arena[y + o.y] &&
+                arena[y + o.y][x + o.x]) !== 0) {
+                return true;
+            }
         }
+    }
+    return false;
+}
+
+let lastTime = 0;
+// 更新遊戲狀態
+function update(time = 0) {
+    const deltaTime = time - lastTime;
+    lastTime = time;
+
+    draw();
+    requestAnimationFrame(update);
+}
+
+
+// 提交設計按鈕事件
+document.getElementById('submit-design').addEventListener('click', () => {
+    selectionPiece = designPiece.map(row => row.slice());
+    designPiece = createMatrix(4, 4); // 重置設計區
+});
+
+// 選擇區點擊事件
+selectionCanvas.addEventListener('click', () => {
+    const newPlayer = {
+        pos: {
+            y: (arena.length / 2 | 0) - (selectionPiece.length / 2 | 0),
+            x: (arena[0].length / 2 | 0) - (selectionPiece[0].length / 2 | 0)
+        },
+        matrix: selectionPiece.map(row => row.slice())
+    };
+    players.push(newPlayer);
+});
+
+// 設計區點擊事件
+designCanvas.addEventListener('click', event => {
+    const x = Math.floor(event.offsetX / 20);
+    const y = Math.floor(event.offsetY / 20);
+    designPiece[y][x] = designPiece[y][x] ? 0 : currentColor; // 切換方塊狀態
+    draw();
+});
+
+// 顏色按鈕點擊事件
+document.querySelectorAll('.color-button').forEach(button => {
+    button.addEventListener('click', () => {
+        currentColor = parseInt(button.getAttribute('data-color'));
+    });
+});
+
+// 滑鼠事件監聽
+canvas.addEventListener('mousedown', event => {
+    const x = Math.floor(event.offsetX / 20);
+    const y = Math.floor(event.offsetY / 20);
+    currentPlayer = players.find(player => {
+        return player.matrix.some((row, dy) => {
+            return row.some((value, dx) => {
+                return value !== 0 && player.pos.x + dx === x && player.pos.y + dy === y;
+            });
+        });
+    });
+});
+
+canvas.addEventListener('mousemove', event => {
+    if (currentPlayer) {
+        const x = Math.floor(event.offsetX / 20);
+        const y = Math.floor(event.offsetY / 20);
+        currentPlayer.pos.x = x - Math.floor(currentPlayer.matrix[0].length / 2);
+        currentPlayer.pos.y = y - Math.floor(currentPlayer.matrix.length / 2);
+        draw();
     }
 });
+
+canvas.addEventListener('mouseup', () => {
+    currentPlayer = null;
+});
+
+update(); 
